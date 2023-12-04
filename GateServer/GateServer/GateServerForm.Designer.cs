@@ -1,6 +1,6 @@
 ﻿namespace GateServer
 {
-    partial class GateServer : Form
+    partial class GateServerForm : Form
     {
         /// <summary>
         ///  Required designer variable.
@@ -33,6 +33,7 @@
             UserCountTextBox = new TextBox();
             ServerCloseButton = new Button();
             ServerStartButton = new Button();
+            LogListBox = new ListBox();
             SuspendLayout();
             // 
             // GameServerListBox
@@ -41,7 +42,7 @@
             GameServerListBox.ItemHeight = 15;
             GameServerListBox.Location = new Point(12, 12);
             GameServerListBox.Name = "GameServerListBox";
-            GameServerListBox.Size = new Size(628, 424);
+            GameServerListBox.Size = new Size(628, 319);
             GameServerListBox.TabIndex = 0;
             // 
             // label1
@@ -84,11 +85,21 @@
             ServerStartButton.Text = "서버 시작";
             ServerStartButton.UseVisualStyleBackColor = true;
             // 
+            // LogListBox
+            // 
+            LogListBox.FormattingEnabled = true;
+            LogListBox.ItemHeight = 15;
+            LogListBox.Location = new Point(12, 342);
+            LogListBox.Name = "LogListBox";
+            LogListBox.Size = new Size(628, 94);
+            LogListBox.TabIndex = 5;
+            // 
             // GateServer
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(LogListBox);
             Controls.Add(ServerStartButton);
             Controls.Add(ServerCloseButton);
             Controls.Add(UserCountTextBox);
@@ -107,5 +118,6 @@
         private TextBox UserCountTextBox;
         private Button ServerCloseButton;
         private Button ServerStartButton;
+        private ListBox LogListBox;
     }
 }
