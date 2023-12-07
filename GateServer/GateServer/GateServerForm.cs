@@ -5,6 +5,7 @@ namespace GateServer
     public partial class GateServerForm : Form
     {
         StreamWriter? LogFileStream;
+        GateServerCore? GateCore;
         public GateServerForm()
         {
             InitializeComponent();
@@ -17,6 +18,7 @@ namespace GateServer
             {
                 LogFileStream = new StreamWriter(Settings.Default.LogDirectory, true);
             }
+            GateCore = new GateServerCore(this);
         }
 
         public void AddLogWithTime(string Context)

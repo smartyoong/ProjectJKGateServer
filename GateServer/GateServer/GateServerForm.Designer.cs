@@ -34,6 +34,8 @@
             ServerCloseButton = new Button();
             ServerStartButton = new Button();
             LogListBox = new ListBox();
+            LoginServerConnectListBox = new ListBox();
+            GameServerAcceptListBox = new ListBox();
             SuspendLayout();
             // 
             // GameServerListBox
@@ -94,18 +96,38 @@
             LogListBox.Size = new Size(628, 94);
             LogListBox.TabIndex = 5;
             // 
-            // GateServer
+            // LoginServerConnectListBox
+            // 
+            LoginServerConnectListBox.FormattingEnabled = true;
+            LoginServerConnectListBox.ItemHeight = 15;
+            LoginServerConnectListBox.Location = new Point(646, 38);
+            LoginServerConnectListBox.Name = "LoginServerConnectListBox";
+            LoginServerConnectListBox.Size = new Size(142, 19);
+            LoginServerConnectListBox.TabIndex = 6;
+            // 
+            // GameServerAcceptListBox
+            // 
+            GameServerAcceptListBox.FormattingEnabled = true;
+            GameServerAcceptListBox.ItemHeight = 15;
+            GameServerAcceptListBox.Location = new Point(646, 63);
+            GameServerAcceptListBox.Name = "GameServerAcceptListBox";
+            GameServerAcceptListBox.Size = new Size(142, 19);
+            GameServerAcceptListBox.TabIndex = 7;
+            // 
+            // GateServerForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(GameServerAcceptListBox);
+            Controls.Add(LoginServerConnectListBox);
             Controls.Add(LogListBox);
             Controls.Add(ServerStartButton);
             Controls.Add(ServerCloseButton);
             Controls.Add(UserCountTextBox);
             Controls.Add(label1);
             Controls.Add(GameServerListBox);
-            Name = "GateServer";
+            Name = "GateServerForm";
             Text = "GateServer";
             ResumeLayout(false);
             PerformLayout();
@@ -119,5 +141,7 @@
         private Button ServerCloseButton;
         private Button ServerStartButton;
         private ListBox LogListBox;
+        private ListBox LoginServerConnectListBox;
+        private ListBox GameServerAcceptListBox;
     }
 }
