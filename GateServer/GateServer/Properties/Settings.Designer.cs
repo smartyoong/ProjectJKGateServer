@@ -43,5 +43,14 @@ namespace GateServer.Properties {
                 this["LogDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("115.136.46.23")]
+        public string LoginServerAddr {
+            get {
+                return ((string)(this["LoginServerAddr"]));
+            }
+        }
     }
 }

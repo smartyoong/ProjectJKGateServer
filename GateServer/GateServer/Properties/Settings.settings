@@ -8,5 +8,8 @@
     <Setting Name="LogDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="LoginServerAddr" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">115.136.46.23</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

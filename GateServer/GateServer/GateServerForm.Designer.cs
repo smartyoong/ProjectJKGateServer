@@ -86,6 +86,7 @@
             ServerStartButton.TabIndex = 4;
             ServerStartButton.Text = "서버 시작";
             ServerStartButton.UseVisualStyleBackColor = true;
+            ServerStartButton.Click += ServerStartClick;
             // 
             // LogListBox
             // 
