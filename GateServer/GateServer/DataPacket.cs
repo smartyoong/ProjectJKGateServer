@@ -28,7 +28,6 @@ namespace GateServer
     }
 
     [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
     public class LoginToGateConnect
     {
         public string UserName = string.Empty;

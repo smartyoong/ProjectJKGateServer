@@ -120,14 +120,14 @@ namespace GateServer
                     }
                     int PacketSize = BitConverter.ToInt32(HeadByte, 0);
                     byte[] ID = new byte[sizeof(LOGIN_TO_GATE_PACKET_ID)];
-                    ReceviedData =  LoginSock.Receive(ID,PacketSize,SocketFlags.None);
+                    ReceviedData =  LoginSock.Receive(ID, sizeof(LOGIN_TO_GATE_PACKET_ID), SocketFlags.None);
                     if (ReceviedData <= 0)
                     {
                         MainForm!.AddLogWithTime("LoginServer와 연결이 종료되었습니다.");
                         break;
                     }
                     LOGIN_TO_GATE_PACKET_ID IDNumber = (LOGIN_TO_GATE_PACKET_ID)BitConverter.ToUInt32(ID,0);
-                    byte[] Data = new byte[PacketSize = sizeof(LOGIN_TO_GATE_PACKET_ID)];
+                    byte[] Data = new byte[PacketSize - sizeof(LOGIN_TO_GATE_PACKET_ID)];
                     ReceviedData = LoginSock.Receive(Data,PacketSize-sizeof(LOGIN_TO_GATE_PACKET_ID),SocketFlags.None);
                     if (ReceviedData <= 0)
                     {
