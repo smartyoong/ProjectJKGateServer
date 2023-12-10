@@ -82,7 +82,7 @@ namespace GateServer
             }
             GateCoreTask = GateCore.Run();
             IsServerOpen = true;
-            Task.WaitAll(GateCoreTask);
+            Task.WhenAll(GateCoreTask);
         }
 
         public void SetLoginServerConnected()

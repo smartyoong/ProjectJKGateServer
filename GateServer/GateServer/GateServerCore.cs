@@ -66,7 +66,8 @@ namespace GateServer
                         MainForm!.AddLogWithTime("로그인 서버와 연결성공!");
                         MainForm!.SetLoginServerConnected();
                     }
-                    Task.WaitAll(Task.Run(() => { RecvDataFromLoginServer(LoginSock); },SocketCancelToken.Token));
+                    Task ProcessLoginTask = Task.Run(() => { RecvDataFromLoginServer(LoginSock); },SocketCancelToken.Token);
+                    await Task.WhenAny(ProcessLoginTask);
                 }
             }
             catch(OperationCanceledException ex)
@@ -109,16 +110,33 @@ namespace GateServer
             {
                 while (!SocketCancelToken!.IsCancellationRequested && LoginSock.Connected)
                 {
+                    int ReceviedData = 0;
                     byte[] HeadByte = new byte[HeaderSize];
-                    LoginSock.Receive(HeadByte,HeaderSize,SocketFlags.None);
+                    ReceviedData = LoginSock.Receive(HeadByte,HeaderSize,SocketFlags.None);
+                    if (ReceviedData <= 0)
+                    {
+                        MainForm!.AddLogWithTime("LoginServer와 연결이 종료되었습니다.");
+                        break;
+                    }
                     int PacketSize = BitConverter.ToInt32(HeadByte, 0);
                     byte[] ID = new byte[sizeof(LOGIN_TO_GATE_PACKET_ID)];
-                    LoginSock.Receive(ID,PacketSize,SocketFlags.None);
+                    ReceviedData =  LoginSock.Receive(ID,PacketSize,SocketFlags.None);
+                    if (ReceviedData <= 0)
+                    {
+                        MainForm!.AddLogWithTime("LoginServer와 연결이 종료되었습니다.");
+                        break;
+                    }
                     LOGIN_TO_GATE_PACKET_ID IDNumber = (LOGIN_TO_GATE_PACKET_ID)BitConverter.ToUInt32(ID,0);
                     byte[] Data = new byte[PacketSize = sizeof(LOGIN_TO_GATE_PACKET_ID)];
-                    LoginSock.Receive(Data,PacketSize-sizeof(LOGIN_TO_GATE_PACKET_ID),SocketFlags.None);
+                    ReceviedData = LoginSock.Receive(Data,PacketSize-sizeof(LOGIN_TO_GATE_PACKET_ID),SocketFlags.None);
+                    if (ReceviedData <= 0)
+                    {
+                        MainForm!.AddLogWithTime("LoginServer와 연결이 종료되었습니다.");
+                        break;
+                    }
                     ProcessLoginData(IDNumber, Data);
                 }
+                IsLoginServerConnected = false;
             }
             catch (OperationCanceledException ex)
             {
