@@ -9,6 +9,7 @@ namespace GateServer
         GateServerCore? GateCore;
         Task? GateCoreTask;
         bool IsServerOpen = false;
+        int UserCount = 0;
         public GateServerForm()
         {
             InitializeComponent();
@@ -25,6 +26,7 @@ namespace GateServer
             LoginServerConnectListBox.BackColor = Color.Red;
             GameServerAcceptListBox.Items.Add("¿¬°á Çã¿ë ¾ÈµÊ");
             GameServerAcceptListBox.BackColor = Color.Red;
+            ThreadPool.SetMaxThreads(4, 4);
         }
 
         public void AddLogWithTime(string Context)
@@ -80,6 +82,7 @@ namespace GateServer
             }
             GateCoreTask = GateCore.Run();
             IsServerOpen = true;
+            Task.WaitAll(GateCoreTask);
         }
 
         public void SetLoginServerConnected()
@@ -97,6 +100,23 @@ namespace GateServer
             {
                 LoginServerConnectListBox.Items[0] = "¿¬°á ¼º°ø";
                 LoginServerConnectListBox.BackColor = Color.Blue;
+            }
+        }
+        public void SetLoginServerStopConnected()
+        {
+            if (LoginServerConnectListBox.InvokeRequired)
+            {
+                LoginServerConnectListBox.Invoke(new Action(() =>
+                {
+                    LoginServerConnectListBox.Items[0] = "¿¬°á ¾ÈµÊ";
+                    LoginServerConnectListBox.BackColor = Color.Red;
+                }
+              ));
+            }
+            else
+            {
+                LoginServerConnectListBox.Items[0] = "¿¬°á ¾ÈµÊ";
+                LoginServerConnectListBox.BackColor = Color.Red;
             }
         }
         public void SetLoginServerConnecting()
@@ -146,6 +166,29 @@ namespace GateServer
             {
                 GameServerAcceptListBox.Items[0] = "¿¬°á Çã¿ë ¾ÈµÊ";
                 GameServerAcceptListBox.BackColor = Color.Red;
+            }
+        }
+        public void IncDecUserCount(bool IsIncrease)
+        {
+            if(IsIncrease)
+            {
+                UserCount++;
+                if(UserCountTextBox.InvokeRequired)
+                {
+                    UserCountTextBox.Invoke(new Action(() => { UserCountTextBox.Text = UserCount.ToString(); }));
+                }
+                else
+                    UserCountTextBox.Invoke(new Action(() => { UserCountTextBox.Text = UserCount.ToString(); }));
+            }
+            else
+            {
+                UserCount--;
+                if (UserCountTextBox.InvokeRequired)
+                {
+                    UserCountTextBox.Invoke(new Action(() => { UserCountTextBox.Text = UserCount.ToString(); }));
+                }
+                else
+                    UserCountTextBox.Invoke(new Action(() => { UserCountTextBox.Text = UserCount.ToString(); }));
             }
         }
     }

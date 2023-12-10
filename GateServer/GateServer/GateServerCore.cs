@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,15 +12,18 @@ namespace GateServer
 {
     public class GateServerCore
     {
+        const int HeaderSize = sizeof(int);
         public GateServerForm? MainForm { get; }
         Socket? ListenSocket;
         CancellationTokenSource? SocketCancelToken;
         bool IsLoginServerConnected = false;
         bool IsUserWantCancel = false;
         Socket? LoginSock;
+        Dictionary<string, Socket> ConnectedUsers;
         public GateServerCore(GateServerForm? Owner)
         {
             MainForm = Owner;
+            ConnectedUsers = new Dictionary<string, Socket>();
         }
 
         public bool InitServer()
@@ -49,34 +53,26 @@ namespace GateServer
         {
             try
             {
-                MainForm!.AddLogWithTime("로그인 서버의 연결을 대기중입니다.");
-                MainForm!.SetLoginServerConnecting();
-                while(!SocketCancelToken!.IsCancellationRequested && !IsLoginServerConnected)
+                while(!SocketCancelToken!.IsCancellationRequested && !IsLoginServerConnected && !IsUserWantCancel)
                 {
+                    MainForm!.AddLogWithTime("로그인 서버의 연결을 대기중입니다.");
+                    MainForm!.SetLoginServerConnecting();
                     LoginSock = await ListenSocket!.AcceptAsync(SocketCancelToken.Token);
                     if(!IsLoginServerConnected)
                     {
                         if (!CheckConnectionLoginServer(LoginSock))
                             continue;
-                        else
-                            break;
+                        IsLoginServerConnected = true;
+                        MainForm!.AddLogWithTime("로그인 서버와 연결성공!");
+                        MainForm!.SetLoginServerConnected();
                     }
-                }
-                IsLoginServerConnected = true;
-                MainForm!.AddLogWithTime("로그인 서버와 연결성공!");
-                MainForm!.SetLoginServerConnected();
-                while(!SocketCancelToken!.IsCancellationRequested)
-                {
-                    // 임시 체크용
-                    Socket TempS = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    TempS.Bind(new IPEndPoint(IPAddress.Any, 15523));
-                    TempS.Listen(1000);
-                    Socket Sock = await TempS!.AcceptAsync(SocketCancelToken.Token);
+                    Task.WaitAll(Task.Run(() => { RecvDataFromLoginServer(LoginSock); },SocketCancelToken.Token));
                 }
             }
             catch(OperationCanceledException ex)
             {
                 MainForm!.AddLogWithTime(ex.Message);
+                IsUserWantCancel = true;
             }
             catch(SocketException ex)
             {
@@ -106,6 +102,55 @@ namespace GateServer
             if (CheckAddr.Address.ToString() == Settings.Default.LoginServerAddr)
                 return true;
             return false;
+        }
+        private void RecvDataFromLoginServer(Socket LoginSock)
+        {
+            try
+            {
+                while (!SocketCancelToken!.IsCancellationRequested && LoginSock.Connected)
+                {
+                    byte[] HeadByte = new byte[HeaderSize];
+                    LoginSock.Receive(HeadByte,HeaderSize,SocketFlags.None);
+                    int PacketSize = BitConverter.ToInt32(HeadByte, 0);
+                    byte[] ID = new byte[sizeof(LOGIN_TO_GATE_PACKET_ID)];
+                    LoginSock.Receive(ID,PacketSize,SocketFlags.None);
+                    LOGIN_TO_GATE_PACKET_ID IDNumber = (LOGIN_TO_GATE_PACKET_ID)BitConverter.ToUInt32(ID,0);
+                    byte[] Data = new byte[PacketSize = sizeof(LOGIN_TO_GATE_PACKET_ID)];
+                    LoginSock.Receive(Data,PacketSize-sizeof(LOGIN_TO_GATE_PACKET_ID),SocketFlags.None);
+                    ProcessLoginData(IDNumber, Data);
+                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                MainForm!.AddLogWithTime(ex.Message);
+                IsLoginServerConnected = false;
+                IsUserWantCancel = true;
+            }
+            catch (SocketException ex)
+            {
+                MainForm!.AddLogWithTime(ex.Message);
+                MainForm!.AddLogWithTime("로그인 서버와의 연결이 끊겼습니다.");
+                MainForm!.SetLoginServerStopConnected();
+                IsLoginServerConnected = false;
+            }
+            catch (Exception ex)
+            {
+                MainForm!.AddLogWithTime(ex.Message);
+            }
+        }
+        private void ProcessLoginData(LOGIN_TO_GATE_PACKET_ID ID ,byte[] Data)
+        {
+            switch(ID)
+            {
+                case LOGIN_TO_GATE_PACKET_ID.ID_NEW_USER_TRY_CONNECT:
+                    LoginToGateConnect PacketData = SocketDataSerializer.DeSerialize<LoginToGateConnect>(Data);
+                    MainForm!.AddLogWithTime(PacketData.UserName);
+                    MainForm!.IncDecUserCount(true);
+                    break;
+                default:
+                    MainForm!.AddLogWithTime("알수 없는 ID입니다. ProcessLoginData");
+                    break;
+            }
         }
     }
 }
