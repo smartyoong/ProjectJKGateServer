@@ -28,8 +28,8 @@ namespace GateServer
     }
 
     [Serializable]
-    public class LoginToGateConnect
+    public class LoginToGateServer
     {
-        public string UserName = string.Empty;
+        public string UserName { get; set; } = string.Empty;
     }
 }

@@ -134,7 +134,7 @@ namespace GateServer
                         MainForm!.AddLogWithTime("LoginServer와 연결이 종료되었습니다.");
                         break;
                     }
-                    ProcessLoginData(IDNumber, Data);
+                    ProcessLoginData(IDNumber, ref Data);
                 }
                 IsLoginServerConnected = false;
             }
@@ -156,13 +156,14 @@ namespace GateServer
                 MainForm!.AddLogWithTime(ex.Message);
             }
         }
-        private void ProcessLoginData(LOGIN_TO_GATE_PACKET_ID ID ,byte[] Data)
+        private void ProcessLoginData(LOGIN_TO_GATE_PACKET_ID ID ,ref byte[] Data)
         {
             switch(ID)
             {
                 case LOGIN_TO_GATE_PACKET_ID.ID_NEW_USER_TRY_CONNECT:
-                    LoginToGateConnect PacketData = SocketDataSerializer.DeSerialize<LoginToGateConnect>(Data);
-                    MainForm!.AddLogWithTime(PacketData.UserName);
+                    LoginToGateServer PacketData; 
+                    PacketData = SocketDataSerializer.DeSerialize<LoginToGateServer>(Data);
+                    MainForm!.AddLogWithTime($"{PacketData.UserName}님이 접속하셨습니다.");
                     MainForm!.IncDecUserCount(true);
                     break;
                 default:
