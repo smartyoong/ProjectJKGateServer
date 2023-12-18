@@ -65,24 +65,23 @@ namespace GateServer
 
         private void ServerStartClick(object sender, EventArgs e)
         {
-            if(IsServerOpen)
+            if (IsServerOpen)
             {
                 MessageBox.Show("이미 실행중입니다.", "실행중", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             SystemSounds.Beep.Play();
-            if (MessageBox.Show("서버를 시작하시겠습니까?","서버시작",MessageBoxButtons.YesNo,MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show("서버를 시작하시겠습니까?", "서버시작", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
                 IsServerOpen = false;
-            }    
-            if(!GateCore!.InitServer())
+            }
+            if (!GateCore!.InitServer())
             {
                 MessageBox.Show("서버 초기화 실패", "에러", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 IsServerOpen = false;
             }
             GateCoreTask = GateCore.Run();
             IsServerOpen = true;
-            Task.WhenAll(GateCoreTask);
         }
 
         public void SetLoginServerConnected()
@@ -170,10 +169,10 @@ namespace GateServer
         }
         public void IncDecUserCount(bool IsIncrease)
         {
-            if(IsIncrease)
+            if (IsIncrease)
             {
                 UserCount++;
-                if(UserCountTextBox.InvokeRequired)
+                if (UserCountTextBox.InvokeRequired)
                 {
                     UserCountTextBox.Invoke(new Action(() => { UserCountTextBox.Text = UserCount.ToString(); }));
                 }
@@ -190,6 +189,18 @@ namespace GateServer
                 else
                     UserCountTextBox.Invoke(new Action(() => { UserCountTextBox.Text = UserCount.ToString(); }));
             }
+        }
+
+        private void ServerStopClick(object sender, EventArgs e)
+        {
+            if (GateCoreTask == null)
+                return;
+
+            GateCore!.Cancel();
+            //Task.WaitAll(GateCoreTask);
+
+            IsServerOpen = false;
+            SetAllServerStopConnect();
         }
     }
 }

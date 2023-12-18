@@ -75,6 +75,7 @@
             ServerCloseButton.TabIndex = 3;
             ServerCloseButton.Text = "서버 종료";
             ServerCloseButton.UseVisualStyleBackColor = true;
+            ServerCloseButton.Click += ServerStopClick;
             // 
             // ServerStartButton
             // 
