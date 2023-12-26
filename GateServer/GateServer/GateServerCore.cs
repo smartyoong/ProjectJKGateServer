@@ -25,6 +25,7 @@ namespace GateServer
         Socket? LoginSock;
         Dictionary<string, Socket> ConnectedUsers;
         Task? ProcessLoginTask;
+        Task? MessageQueueTask;
         public GateServerCore(GateServerForm? Owner)
         {
             MainForm = Owner;
@@ -62,24 +63,25 @@ namespace GateServer
         {
             try
             {
-                while (!SocketCancelToken!.IsCancellationRequested && !IsLoginServerConnected && !IsUserWantCancel)
+                while (!SocketCancelToken!.IsCancellationRequested && !IsUserWantCancel)
                 {
-                    MainForm!.AddLogWithTime("로그인 서버의 연결을 대기중입니다.");
-                    MainForm!.SetLoginServerConnecting();
-                    LoginSock = await ListenSocket!.AcceptAsync(SocketCancelToken.Token);
                     if (!IsLoginServerConnected)
                     {
+                        MainForm!.AddLogWithTime("로그인 서버의 연결을 대기중입니다.");
+                        MainForm!.SetLoginServerConnecting();
+                        LoginSock = await ListenSocket!.AcceptAsync(SocketCancelToken.Token);
                         if (!CheckConnectionLoginServer(LoginSock))
                             continue;
                         IsLoginServerConnected = true;
                         MainForm!.AddLogWithTime("로그인 서버와 연결성공!");
                         MainForm!.SetLoginServerConnected();
                         ProcessLoginTask = Task.Run(() => { RecvDataFromLoginServer(LoginSock); }, SocketCancelToken.Token);
-                        RunQueue();
+                        MessageQueueTask = Task.Run(() => { RunQueue(); }, QueueCancelToken!.Token);
                     }
-                    else if(IsLoginServerConnected)
+                    else
                     {
-                        ClientTasks!.Add(Task.Run(() => ClientRun(LoginSock!),SocketCancelToken.Token));
+                        Socket ClientSock = await ListenSocket!.AcceptAsync(SocketCancelToken.Token);
+                        ClientTasks!.Add(Task.Run(() => ClientRun(ClientSock!),SocketCancelToken.Token));
                     }
                 }
             }
@@ -106,6 +108,9 @@ namespace GateServer
                     await Task.WhenAll(ClientTasks);
                     MainForm!.AddLogWithTime($"{ClientTasks.Count} Client tasks 종료완료");
                 }
+                if (MessageQueueTask.IsCanceled)
+                    MainForm!.AddLogWithTime("SEX");
+                Task.WaitAll(MessageQueueTask!);
                 MainForm!.AddLogWithTime("게이트 서버 종료 완료");
             }
         }
@@ -156,6 +161,7 @@ namespace GateServer
                     ProcessLoginData(IDNumber, ref Data, LoginSock);
                 }
                 IsLoginServerConnected = false;
+                SocketCancelToken.Token.ThrowIfCancellationRequested();
             }
             catch (OperationCanceledException ex)
             {
@@ -257,6 +263,10 @@ namespace GateServer
             {
                 MainForm!.AddLogWithTime(ex.Message);
                 MainForm!.AddLogWithTime("Message Queue를 종료합니다.");
+            }
+            finally
+            {
+                QueueCancelToken!.Token.ThrowIfCancellationRequested();
             }
         }
 
