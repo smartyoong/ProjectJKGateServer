@@ -58,7 +58,7 @@ namespace GateServer
                 Directory.CreateDirectory(LogDirectory);
             }
 
-            string LogFilePath = Path.Combine(LogDirectory, $"LOG{FormattedTime}.txt");
+            string LogFilePath = Path.Combine(LogDirectory, $"GateServerLog{FormattedTime}.txt");
             if (!File.Exists(LogFilePath))
             {
                 File.Create(LogFilePath).Close();
@@ -213,6 +213,31 @@ namespace GateServer
             SetAllServerStopConnect();
 
             IsServerReOpen = true;
+        }
+
+        private void SetLogDirectory_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog FolderBrowserDialog = new FolderBrowserDialog();
+
+            if (FolderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                string FolderPath = FolderBrowserDialog.SelectedPath;
+                DateTime CurrentTime = DateTime.Now;
+                string FormattedTime = CurrentTime.ToString("yyyy-MM-dd-HH-mm-ss");
+                string LogFilePath = Path.Combine(FolderPath, $"GateServerLog{FormattedTime}.txt");
+                if (!File.Exists(LogFilePath))
+                {
+                    File.Create(LogFilePath).Close();
+                    if (LogFileStream != null)
+                    {
+                        LogFileStream.Close();
+                        LogFileStream = null;
+                    }
+                    LogFileStream = new StreamWriter(LogFilePath, true);
+                }
+                Settings.Default.LogDirectory = LogFilePath;
+                Settings.Default.Save();
+            }
         }
     }
 }

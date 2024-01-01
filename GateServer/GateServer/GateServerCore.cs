@@ -143,7 +143,7 @@ namespace GateServer
                 await Task.WhenAll(ClientTasks);
                 MainForm.AddLogWithTime($"{ClientTasks.Count} Client tasks 종료완료");
             }
-            if (LoginSock!.Connected)
+            if (LoginSock != null && LoginSock!.Connected)
             {
                 LoginSock.Close();
             }

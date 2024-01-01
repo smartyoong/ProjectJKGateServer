@@ -36,15 +36,19 @@
             LogListBox = new ListBox();
             LoginServerConnectListBox = new ListBox();
             GameServerAcceptListBox = new ListBox();
+            menuStrip1 = new MenuStrip();
+            Logs = new ToolStripMenuItem();
+            SetLogDirectory = new ToolStripMenuItem();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // GameServerListBox
             // 
             GameServerListBox.FormattingEnabled = true;
             GameServerListBox.ItemHeight = 15;
-            GameServerListBox.Location = new Point(12, 12);
+            GameServerListBox.Location = new Point(12, 27);
             GameServerListBox.Name = "GameServerListBox";
-            GameServerListBox.Size = new Size(628, 319);
+            GameServerListBox.Size = new Size(628, 304);
             GameServerListBox.TabIndex = 0;
             // 
             // label1
@@ -116,6 +120,29 @@
             GameServerAcceptListBox.Size = new Size(142, 19);
             GameServerAcceptListBox.TabIndex = 7;
             // 
+            // menuStrip1
+            // 
+            menuStrip1.Items.AddRange(new ToolStripItem[] { Logs });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(800, 24);
+            menuStrip1.TabIndex = 8;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // Logs
+            // 
+            Logs.DropDownItems.AddRange(new ToolStripItem[] { SetLogDirectory });
+            Logs.Name = "Logs";
+            Logs.Size = new Size(43, 20);
+            Logs.Text = "로그";
+            // 
+            // SetLogDirectory
+            // 
+            SetLogDirectory.Name = "SetLogDirectory";
+            SetLogDirectory.Size = new Size(180, 22);
+            SetLogDirectory.Text = "로그 디렉토리 설정";
+            SetLogDirectory.Click += SetLogDirectory_Click;
+            // 
             // GateServerForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -129,8 +156,12 @@
             Controls.Add(UserCountTextBox);
             Controls.Add(label1);
             Controls.Add(GameServerListBox);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Name = "GateServerForm";
             Text = "GateServer";
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -145,5 +176,8 @@
         private ListBox LogListBox;
         private ListBox LoginServerConnectListBox;
         private ListBox GameServerAcceptListBox;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem Logs;
+        private ToolStripMenuItem SetLogDirectory;
     }
 }
