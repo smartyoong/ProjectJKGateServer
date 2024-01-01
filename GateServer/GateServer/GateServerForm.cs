@@ -6,10 +6,11 @@ namespace GateServer
     public partial class GateServerForm : Form
     {
         StreamWriter? LogFileStream;
-        GateServerCore? GateCore;
+        GateServerCore GateCore;
         Task? GateCoreTask;
         bool IsServerOpen = false;
         int UserCount = 0;
+        bool IsServerReOpen = true;
         public GateServerForm()
         {
             InitializeComponent();
@@ -37,7 +38,10 @@ namespace GateServer
                 LogListBox.Invoke(new Action<string>(AddLogWithTime), Context);
             }
             else
+            {
                 LogListBox.Items.Add(Temp);
+                LogListBox.SelectedIndex = LogListBox.Items.Count - 1;
+            }
             LogFileStream!.WriteLine(Temp);
             LogFileStream.Flush();
         }
@@ -74,11 +78,17 @@ namespace GateServer
             if (MessageBox.Show("서버를 시작하시겠습니까?", "서버시작", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
                 IsServerOpen = false;
+                return;
             }
-            if (!GateCore!.InitServer())
+            if (IsServerReOpen)
+            {
+                GateCore = new GateServerCore(this);
+            }
+            if (!GateCore.InitServer())
             {
                 MessageBox.Show("서버 초기화 실패", "에러", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 IsServerOpen = false;
+                return;
             }
             GateCoreTask = GateCore.Run();
             IsServerOpen = true;
@@ -191,16 +201,18 @@ namespace GateServer
             }
         }
 
-        private void ServerStopClick(object sender, EventArgs e)
+        private async void ServerStopClick(object sender, EventArgs e)
         {
             if (GateCoreTask == null)
                 return;
 
-            GateCore!.Cancel();
-            //Task.WaitAll(GateCoreTask);
+            GateCore.Cancel();
+            await GateCoreTask;
 
             IsServerOpen = false;
             SetAllServerStopConnect();
+
+            IsServerReOpen = true;
         }
     }
 }
