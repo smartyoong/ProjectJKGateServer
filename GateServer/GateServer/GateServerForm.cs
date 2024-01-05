@@ -20,7 +20,14 @@ namespace GateServer
             }
             else
             {
-                LogFileStream = new StreamWriter(Settings.Default.LogDirectory, true);
+                DateTime CurrentTime = DateTime.Now;
+                string FormattedTime = CurrentTime.ToString("yyyy-MM-dd-HH-mm-ss");
+                string LogFilePath = Path.Combine(Settings.Default.LogDirectory, $"GateServerLog{FormattedTime}.txt");
+                if (!File.Exists(LogFilePath))
+                {
+                    File.Create(LogFilePath).Close();
+                }
+                LogFileStream = new StreamWriter(LogFilePath, true);
             }
             GateCore = new GateServerCore(this);
             LoginServerConnectListBox.Items.Add("¿¬°á ¾ÈµÊ");
@@ -235,7 +242,7 @@ namespace GateServer
                     }
                     LogFileStream = new StreamWriter(LogFilePath, true);
                 }
-                Settings.Default.LogDirectory = LogFilePath;
+                Settings.Default.LogDirectory = FolderPath;
                 Settings.Default.Save();
             }
         }
