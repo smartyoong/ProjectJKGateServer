@@ -222,8 +222,19 @@ namespace GateServer
 
         private bool TryReceiveData(Socket socket, byte[] buffer, int size)
         {
-            int receivedData = socket.Receive(buffer, size, SocketFlags.None);
-            return receivedData > 0;
+            int TotalReceived = 0;
+            while (TotalReceived < size)
+            {
+                int Received = socket.Receive(buffer, TotalReceived, size - TotalReceived, SocketFlags.None);
+                if (Received == 0)
+                {
+                    MainForm.AddLogWithTime("데이터를 받는것이 실패했습니다.");
+                    return false;
+                }
+                TotalReceived += Received;
+                MainForm.AddLogWithTime($"받은 데이터 : {Received} bytes");
+            }
+            return true;
         }
 
         private void DisconnectWithLog(string message)
